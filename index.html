@@ -937,7 +937,8 @@
         }
       } catch (e) {
         console.error(e);
-        alert('Error al conectar con el servidor.');
+        alert('Error real: ' + (e.message || e.code || e));
+
       } finally {
         btnSubmit.disabled = false;
       }
