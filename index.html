@@ -815,9 +815,7 @@ window.onerror = function(msg, url, line) {
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
-db.settings({
-  experimentalForceLongPolling: true
-});
+
 
     const CATALOGO = [
       { id: 'p1', nombre: 'Pollito Amarillo', nivel: 'Básico', precio: 20, prodDiaria: 1, icono: '🐥' },
