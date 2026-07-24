@@ -6,6 +6,12 @@ window.onerror = function(msg, url, line) {
   alert('❌ ERROR JS: ' + msg + ' | Línea: ' + line);
 };
   </script>
+  <script>
+fetch('https://firestore.googleapis.com/v1/projects/ninerito-f99f7/databases/(default)/documents/usuarios')
+  .then(r => r.text())
+  .then(t => alert('✅ CONEXIÓN OK: ' + t.substring(0, 300)))
+  .catch(e => alert('❌ FALLO DE RED: ' + e.message));
+  </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>El Gallinero v1.0</title>
