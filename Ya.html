@@ -1,0 +1,1529 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <script>
+window.onerror = function(msg, url, line) {
+  alert('❌ ERROR JS: ' + msg + ' | Línea: ' + line);
+};
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>El Gallinero v2.5 - Granjero y Admin</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      user-select: none;
+    }
+
+    body {
+      background-color: #F4F6F8;
+      color: #2C3E50;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 12px;
+      padding-bottom: 90px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      background: #FFFFFF;
+      padding: 10px 14px;
+      border-radius: 12px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 800;
+      font-size: 1.1rem;
+      color: #27AE60;
+    }
+
+    .vista { display: none; }
+    .vista.activa { display: block; }
+
+    .producto-card {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 14px;
+      margin-bottom: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      border: 1px solid #EAECEE;
+      position: relative;
+    }
+
+    .badge-vendida {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      background: #FDEDEC;
+      color: #E74C3C;
+      font-size: 0.65rem;
+      font-weight: bold;
+      padding: 3px 8px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      z-index: 2;
+    }
+
+    .producto-grid-top {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+
+    .producto-img-container {
+      width: 100px;
+      height: 100px;
+      border-radius: 12px;
+      border: 1px solid #EAECEE;
+      flex-shrink: 0;
+      background: linear-gradient(135deg, #FFF9E6, #FFF3CD);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .producto-img-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .emoji-badge-sombra {
+      font-size: 0.75rem;
+      background: rgba(255,255,255,0.8);
+      padding: 1px 6px;
+      border-radius: 6px;
+      margin-top: 4px;
+      font-weight: bold;
+    }
+
+    .producto-info { flex: 1; }
+
+    .producto-titulo {
+      font-size: 1rem;
+      font-weight: 800;
+      color: #2C3E50;
+      margin-bottom: 4px;
+    }
+
+    .tags-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .tag-nivel {
+      background: #EAECEE;
+      color: #5D6D7E;
+      font-size: 0.65rem;
+      font-weight: bold;
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+
+    .producto-desc {
+      font-size: 0.72rem;
+      color: #7F8C8D;
+      margin-bottom: 6px;
+      line-height: 1.2;
+    }
+
+    .producto-precio {
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #27AE60;
+    }
+
+    .limite-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: #EAFAF1;
+      color: #27AE60;
+      font-size: 0.65rem;
+      font-weight: bold;
+      padding: 2px 8px;
+      border-radius: 6px;
+      margin-top: 4px;
+    }
+
+    .stats-card-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin: 12px 0;
+      background: #F8F9FA;
+      padding: 8px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .stat-item .stat-num {
+      font-size: 0.9rem;
+      font-weight: bold;
+      color: #2C3E50;
+    }
+
+    .stat-item .stat-label {
+      font-size: 0.58rem;
+      color: #7F8C8D;
+    }
+
+    .btn-comprar-grande {
+      width: 100%;
+      background: #27AE60;
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 10px rgba(39, 174, 96, 0.3);
+      transition: transform 0.1s;
+    }
+    .btn-comprar-grande:active { transform: scale(0.98); }
+
+    .card-principal {
+      background: linear-gradient(135deg, #2C3E50, #1A252F);
+      color: #FFF;
+      padding: 16px;
+      border-radius: 16px;
+      margin-bottom: 12px;
+      box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+    }
+
+    .stats-top {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .stat-box-top {
+      background: rgba(255,255,255,0.1);
+      padding: 8px;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .input-group {
+      margin-bottom: 12px;
+      text-align: left;
+    }
+
+    .input-group label {
+      display: block;
+      font-size: 0.72rem;
+      font-weight: bold;
+      margin-bottom: 4px;
+      color: #2C3E50;
+    }
+
+    .input-group input, .input-group select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #D5D8DC;
+      border-radius: 10px;
+      background: #FDFEFE;
+      font-size: 0.85rem;
+      outline: none;
+    }
+
+    .btn-auth {
+      width: 100%;
+      padding: 12px;
+      background: #27AE60;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      font-size: 0.9rem;
+      cursor: pointer;
+      margin-top: 6px;
+    }
+
+    .btn-auth-secondary {
+      background: transparent;
+      color: #2980B9;
+      border: none;
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-top: 10px;
+      cursor: pointer;
+      width: 100%;
+      text-align: center;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.6);
+      z-index: 200;
+      padding: 16px;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.activo { display: flex; }
+
+    .modal-box {
+      background: #FFFFFF;
+      border-radius: 16px;
+      padding: 18px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .wallet-box {
+      background: #F8F9FA;
+      border: 1px dashed #BDC3C7;
+      padding: 8px;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      word-break: break-all;
+      font-family: monospace;
+      margin-top: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-copy {
+      background: #34495E;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.65rem;
+      cursor: pointer;
+    }
+
+    .btn-flotante-asistente {
+      position: fixed;
+      bottom: 65px;
+      left: 12px;
+      background: #34495E;
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 8px 14px;
+      font-weight: bold;
+      font-size: 0.75rem;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      z-index: 150;
+      cursor: pointer;
+    }
+
+    .btn-flotante-asesores {
+      position: fixed;
+      bottom: 65px;
+      right: 12px;
+      background: #27AE60;
+      color: white;
+      text-decoration: none;
+      border-radius: 50px;
+      padding: 8px 14px;
+      font-weight: bold;
+      font-size: 0.75rem;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      z-index: 150;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .chat-container {
+      height: 200px;
+      overflow-y: auto;
+      border: 1px solid #D5D8DC;
+      border-radius: 10px;
+      padding: 8px;
+      background: #F8F9FA;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .msg {
+      max-width: 85%;
+      padding: 6px 10px;
+      border-radius: 10px;
+      font-size: 0.78rem;
+    }
+    .msg-bot { background: white; border: 1px solid #D5D8DC; align-self: flex-start; }
+    .msg-user { background: #27AE60; color: white; align-self: flex-end; }
+
+    nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      background: #FFFFFF;
+      border-top: 1px solid #EAECEE;
+      display: flex;
+      justify-content: space-around;
+      padding: 6px 0;
+      max-width: 480px;
+      margin: 0 auto;
+      z-index: 100;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      color: #95A5A6;
+      font-size: 0.55rem;
+      font-weight: bold;
+      gap: 2px;
+      cursor: pointer;
+      flex: 1;
+    }
+    .nav-btn.active { color: #27AE60; }
+    .nav-btn span { font-size: 1rem; }
+
+    /* Estilos del panel admin integrado */
+    .admin-card { background: #2C3E50; border-radius: 12px; padding: 14px; margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); border: 1px solid #34495E; color: #ECF0F1; }
+    .admin-badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 0.65rem; font-weight: bold; margin-bottom: 6px; text-transform: uppercase; }
+    .badge-recarga { background: #F39C12; color: #FFF; }
+    .badge-retiro { background: #E74C3C; color: #FFF; }
+    .admin-card-body { font-size: 0.85rem; color: #C8D2D7; margin-bottom: 6px; }
+    .admin-card-body span { color: #fff; font-weight: 600; }
+    .admin-acciones { display: flex; gap: 8px; margin-top: 10px; }
+    .admin-acciones button { flex: 1; padding: 10px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.8rem; }
+    .btn-aprobar { background: #27AE60; color: white; }
+    .btn-aprobar:hover { background: #2ECC71; }
+    .btn-rechazar { background: #C0392B; color: white; }
+    .btn-rechazar:hover { background: #E74C3C; }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">
+      <span>🐔</span>
+      <span>Granja IDLE</span>
+    </div>
+    <div id="avatar-header" style="font-size: 1.2rem;">🧑‍🌾</div>
+  </header>
+
+  <!-- VISTA: AUTENTICACIÓN -->
+  <div id="vista-auth" class="vista activa">
+    <div class="card-principal" style="text-align: center;">
+      <h2 id="auth-titulo">Iniciar Sesión</h2>
+      <p style="font-size: 0.75rem; opacity: 0.8; margin-top: 4px;">Gestiona tu producción agrícola y genera ingresos</p>
+    </div>
+
+    <div style="background: white; padding: 16px; border-radius: 16px; border: 1px solid #EAECEE;">
+      <form id="auth-form" onsubmit="procesarAuth(event)">
+        <div class="input-group" id="group-nombre" style="display: none;">
+          <label>Nombre de Granjero</label>
+          <input type="text" id="auth-nombre" placeholder="Ej. Juan Pérez">
+        </div>
+        <div class="input-group" id="group-codigo-inv" style="display: none;">
+          <label>Código de Invitación (Opcional)</label>
+          <input type="text" id="auth-codigo-inv" placeholder="Ej. 48291">
+        </div>
+        <div class="input-group">
+          <label>Correo Electrónico</label>
+          <input type="email" id="auth-email" placeholder="granjero@ejemplo.com" required>
+        </div>
+        <div class="input-group">
+          <label>Contraseña</label>
+          <input type="password" id="auth-password" placeholder="••••••••" required>
+        </div>
+        <button type="submit" class="btn-auth" id="btn-submit-auth">Ingresar a la Granja</button>
+      </form>
+      <button onclick="toggleModoAuth()" class="btn-auth-secondary" id="btn-toggle-auth">
+        ¿No tienes cuenta? Regístrate aquí (Bonus: 2 💵 + Gallina de Regalo 🐤)
+      </button>
+    </div>
+  </div>
+
+  <!-- VISTA: INICIO -->
+  <div id="vista-inicio" class="vista">
+    <div class="card-principal">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <h2 id="saludo-granjero" style="font-size: 1.1rem;">¡Hola, Granjero!</h2>
+        <span style="background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: bold;" id="racha-dias-txt">🔥 Racha: 1 día</span>
+      </div>
+      <div class="stats-top">
+        <div class="stat-box-top">
+          <div style="font-size: 0.55rem; color: #BDC3C7;">BILLETES</div>
+          <div style="font-size: 0.85rem; font-weight: bold;" id="monedas-txt">0.00 💵</div>
+        </div>
+        <div class="stat-box-top">
+          <div style="font-size: 0.55rem; color: #BDC3C7;">GALLINAS</div>
+          <div style="font-size: 0.85rem; font-weight: bold;" id="cant-gallinas-txt">1 🐤</div>
+        </div>
+        <div class="stat-box-top">
+          <div style="font-size: 0.55rem; color: #BDC3C7;">PUNTAJE</div>
+          <div style="font-size: 0.85rem; font-weight: bold;" id="puntos-txt">100 pts</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 8px; margin-top: 10px;">
+        <button onclick="abrirModalRecarga()" style="flex:1; background: #F39C12; color:white; border:none; padding:8px; border-radius:8px; font-weight:bold; font-size:0.7rem; cursor:pointer;">⚡ Recargar Saldo</button>
+        <button onclick="abrirModalRetiro()" style="flex:1; background: #27AE60; color:white; border:none; padding:8px; border-radius:8px; font-weight:bold; font-size:0.7rem; cursor:pointer;">📤 Retirar Dinero</button>
+      </div>
+    </div>
+
+    <h4 style="margin-bottom: 8px; font-size: 0.9rem;">Tus Aves Activas</h4>
+    <div id="contenedor-mis-gallinas"></div>
+
+    <button onclick="recolectar()" class="btn-auth" style="margin-top: 8px; padding: 12px; font-size: 0.85rem;">
+      🌾 Recolectar Producción (<span id="recoleccion-pendiente">0.00</span> 💵)
+    </button>
+  </div>
+
+  <!-- VISTA: TIENDA -->
+  <div id="vista-gallinas" class="vista">
+    <h3 style="margin-bottom: 10px; font-size: 0.95rem;">Mercado Avícola Profesional</h3>
+    <div id="mercado-lista"></div>
+  </div>
+
+  <!-- VISTA: PROGRESO -->
+  <div id="vista-progreso" class="vista">
+    <h3 style="margin-bottom: 10px; font-size: 0.95rem;">Mi Progreso de Granja (Ciclos Individuales)</h3>
+    <div id="contenedor-progreso-gallinas"></div>
+  </div>
+
+  <!-- VISTA: INVITAR AMIGOS -->
+  <div id="vista-invitar" class="vista">
+    <div class="producto-card" style="text-align: center;">
+      <div style="font-size: 2.5rem; margin-bottom: 6px;">🎁</div>
+      <h3 style="font-size: 1.1rem; margin-bottom: 4px;">Invita y Gana un 3%</h3>
+      <p style="font-size: 0.72rem; color: #7F8C8D; margin-bottom: 12px;">Comparte tu código o enlace de invitación único de 5 dígitos. Gana el <b>3% de comisión</b> únicamente por cada recarga que realicen tus amigos invitados.</p>
+      
+      <div style="background: #F8F9FA; padding: 10px; border-radius: 10px; border: 1px dashed #BDC3C7; margin-bottom: 12px;">
+        <div style="font-size: 0.65rem; color: #7F8C8D; margin-bottom: 2px;">TU CÓDIGO ÚNICO DE 5 DÍGITOS</div>
+        <div style="font-size: 1.4rem; font-weight: 800; color: #27AE60; font-family: monospace;" id="lbl-codigo-ref">-</div>
+      </div>
+
+      <div class="wallet-box" style="margin-bottom: 12px;">
+        <span id="link-referido-txt">Cargando enlace...</span>
+        <button class="btn-copy" onclick="copiarEnlaceRef()">Copiar Enlace</button>
+      </div>
+
+      <div style="text-align: left; background: #EAFAF1; padding: 10px; border-radius: 10px; font-size: 0.72rem; color: #27AE60;">
+        <b>💡 Regla del Sistema:</b> Cada vez que un usuario registrado con tu código recargue saldo, recibirás automáticamente el 3% de comisión.
+      </div>
+    </div>
+  </div>
+
+  <!-- VISTA: HISTORIAL -->
+  <div id="vista-historial" class="vista">
+    <h3 style="margin-bottom: 10px; font-size: 0.95rem;">Historial de Transacciones</h3>
+    <div id="historial-lista"></div>
+  </div>
+
+  <!-- VISTA: PERFIL Y PANEL ADMIN -->
+  <div id="vista-perfil" class="vista">
+    <div class="producto-card" style="text-align: center;">
+      <div style="font-size: 2.8rem; margin-bottom: 6px;">🧑‍🌾</div>
+      <div style="font-weight: bold; font-size: 1rem;" id="perfil-nombre">Granjero</div>
+      <div style="font-size: 0.72rem; color: #7F8C8D; margin-bottom: 10px;">Puntaje: <b id="perfil-puntos">100 pts</b> | Racha: <b id="perfil-racha" style="color: #E67E22;">1 día</b></div>
+      
+      <div style="text-align: left; border-top: 1px solid #EAECEE; padding-top: 8px; font-size: 0.75rem; color: #5D6D7E;">
+        <p>Código Granjero: <b id="perfil-codigo" style="font-family: monospace; color: #27AE60;">-</b></p>
+        <p style="margin-top: 4px;">Correo: <b id="perfil-correo">-</b></p>
+        <p style="margin-top: 4px;">Registro: <b id="perfil-fecha">-</b></p>
+        <p style="margin-top: 4px;">Aves: <b id="perfil-gallinas">1</b></p>
+      </div>
+
+      <!-- PANEL DE ADMINISTRADOR DE BONOS -->
+      <div id="panel-admin-bonos" style="margin-top: 15px; border-top: 2px dashed #27AE60; padding-top: 10px; text-align: left;">
+        <h4 style="font-size: 0.85rem; color: #27AE60; margin-bottom: 6px;">🛠️ Panel Admin: Bonos y Usuarios</h4>
+        <div class="input-group" style="margin-bottom: 6px;">
+          <label style="font-size: 0.68rem;">Nombre del Usuario a Bonificar</label>
+          <input type="text" id="admin-target-nombre" placeholder="Nombre exacto del usuario" style="padding: 6px; font-size: 0.75rem;">
+        </div>
+        <div class="input-group" style="margin-bottom: 6px;">
+          <label style="font-size: 0.68rem;">Contraseña de Admin</label>
+          <input type="password" id="admin-password-input" placeholder="••••••••••" style="padding: 6px; font-size: 0.75rem;">
+        </div>
+        <div class="input-group" style="margin-bottom: 6px;">
+          <label style="font-size: 0.68rem;">Monto de Bono (💵)</label>
+          <input type="number" step="0.1" id="admin-target-monto" placeholder="Ej. 10" style="padding: 6px; font-size: 0.75rem;">
+        </div>
+        <button onclick="ejecutarBonoAdmin()" style="width: 100%; background: #27AE60; color: white; border: none; padding: 8px; border-radius: 6px; font-weight: bold; font-size: 0.75rem; cursor: pointer;">✨ Aplicar Bono a Usuario</button>
+        
+        <div style="margin-top: 10px;">
+          <h5 style="font-size: 0.75rem; color: #2C3E50; margin-bottom: 4px;">👥 Usuarios Registrados en Tiempo Real:</h5>
+          <div id="lista-usuarios-admin" style="max-height: 120px; overflow-y: auto; background: #F8F9FA; border: 1px solid #D5D8DC; border-radius: 6px; padding: 6px; font-size: 0.68rem;">
+            Cargando usuarios...
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL DE CONTROL DE RECARGAS / RETIROS (ADMIN GENERAL) -->
+      <div style="margin-top: 20px; border-top: 2px solid #34495E; padding-top: 12px; text-align: left;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <h4 style="font-size: 0.85rem; color: #2C3E50;">🛡️ Solicitudes y Depósitos Pendientes</h4>
+          <span style="font-size: 0.7rem; font-weight: bold; background: #E74C3C; color: white; padding: 2px 6px; border-radius: 6px;" id="total-notif">0 Pendientes</span>
+        </div>
+        <div id="lista-notificaciones-admin" style="max-height: 250px; overflow-y: auto;">
+          <p style="font-size: 0.75rem; color: #7F8C8D; text-align: center; padding: 10px;">Cargando solicitudes... ⏳</p>
+        </div>
+      </div>
+
+      <button onclick="cerrarSesion()" style="width: 100%; background: #E74C3C; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; margin-top: 12px; cursor: pointer; font-size: 0.8rem;">🚪 Cerrar Sesión</button>
+    </div>
+  </div>
+
+  <!-- MODAL: RECARGA (Solo Banco Guayaquil) -->
+  <div id="modal-recarga" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size: 1rem;">⚡ Recargar Saldo</h3>
+        <button onclick="cerrarModalRecarga()" style="background:none; border:none; font-size: 1.1rem; font-weight:bold; cursor:pointer;">✕</button>
+      </div>
+      
+      <div class="input-group">
+        <label>Método de Pago</label>
+        <select id="metodo-recarga-select" disabled>
+          <option value="Banco Guayaquil" selected>Banco Guayaquil (Transferencia)</option>
+        </select>
+      </div>
+
+      <div id="info-banco-guayaquil" style="background: #F8F9FA; padding: 10px; border-radius: 10px; border: 1px solid #D5D8DC; font-size: 0.75rem; margin-bottom: 10px;">
+        <p><b>Titular:</b> Rodman Ariel Llangari Rodríguez</p>
+        <p style="margin-top: 4px;"><b>Cuenta de Ahorros:</b> <span id="num-cta-bg">0043387281</span> <button class="btn-copy" onclick="navigator.clipboard.writeText('0043387281')">Copiar</button></p>
+        <p style="margin-top: 4px;"><b>C.I.:</b> 0650141005</p>
+        <div style="background: #EAFAF1; border: 1px solid #A3E4D7; border-radius: 6px; padding: 6px; margin-top: 6px; color: #117A65; font-weight: bold; text-align: center;">
+          📸 Envía la foto de tu comprobante al WhatsApp: <span style="font-family: monospace; font-size: 0.85rem;">0964119803</span>[span_1](start_span)[span_1](end_span)
+        </div>
+      </div>
+
+      <form onsubmit="notificarDeposito(event)">
+        <div class="input-group">
+          <label>Monto Transferido ($)</label>
+          <input type="number" step="0.1" id="recarga-monto" placeholder="Ej. 20" required>
+        </div>
+        <div class="input-group">
+          <label id="label-comprobante">Número de Comprobante / Transacción</label>
+          <input type="text" id="recarga-txid" placeholder="Ej. Ref 123456" required>
+        </div>
+        <button type="submit" class="btn-auth">Enviar Notificación al Administrador</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: RETIRO (Solo Banco Guayaquil) -->
+  <div id="modal-retiro" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size: 1rem;">📤 Retirar Dinero</h3>
+        <button onclick="cerrarModalRetiro()" style="background:none; border:none; font-size: 1.1rem; font-weight:bold; cursor:pointer;">✕</button>
+      </div>
+      <form onsubmit="procesarRetiro(event)">
+        <div class="input-group">
+          <label>Monto a Retirar (Mínimo $10)</label>
+          <input type="number" step="0.01" id="retiro-monto" placeholder="10.00" required>
+        </div>
+        <div class="input-group">
+          <label>Método de Retiro</label>
+          <select id="retiro-metodo" disabled>
+            <option value="Banco Guayaquil" selected>Banco Guayaquil (Ahorros)</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Número de Cuenta de Ahorros</label>
+          <input type="text" id="retiro-destino" placeholder="Número de cuenta" required>
+        </div>
+        <button type="submit" class="btn-auth" style="background: #34495E;">Enviar Solicitud al Administrador</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- MODAL: CANCELAR CONTRATO -->
+  <div id="modal-cancelar-contrato" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size: 1rem;">Cancelar contrato</h3>
+        <button onclick="cerrarModalCancelarContrato()" style="background:none; border:none; font-size: 1.1rem; font-weight:bold; cursor:pointer;">✕</button>
+      </div>
+      <p style="font-size: 0.72rem; color: #7F8C8D; margin-bottom: 12px;">Revisa la información antes de confirmar la cancelación.</p>
+      
+      <div style="background: #F8F9FA; border: 1px solid #EAECEE; border-radius: 10px; padding: 10px; margin-bottom: 12px; font-size: 0.78rem;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <span style="color: #7F8C8D;">🟢 Monto original:</span>
+          <span style="font-weight: bold;" id="cancelar-monto-orig">$30.00</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <span style="color: #7F8C8D;">📅 Fecha de apertura:</span>
+          <span style="font-weight: bold;" id="cancelar-fecha-apertura">19/07/2026 21:13</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <span style="color: #7F8C8D;">📊 Comisión por cancelación:</span>
+          <span style="font-weight: bold;">30%</span>
+        </div>
+        <div style="display: flex; justify-content: space-between; border-top: 1px dashed #D5D8DC; padding-top: 8px; margin-top: 4px;">
+          <span style="font-weight: bold; color: #2C3E50;">💰 Monto final a devolver:</span>
+          <span style="font-weight: 800; color: #27AE60; font-size: 0.95rem;" id="cancelar-monto-devolver">$21.00</span>
+        </div>
+      </div>
+
+      <div style="background: #FEF9E7; border: 1px solid #F9E79F; border-radius: 8px; padding: 8px; margin-bottom: 14px; display: flex; gap: 6px; align-items: flex-start;">
+        <span style="font-size: 0.9rem;">⚠️</span>
+        <span style="font-size: 0.68rem; color: #7D6608; line-height: 1.2;">La cancelación cerrará este contrato y ya no podrás seguir recibiendo ingresos de esta gallina.</span>
+      </div>
+
+      <div style="display: flex; gap: 8px;">
+        <button onclick="cerrarModalCancelarContrato()" style="flex: 1; background: #EAECEE; color: #2C3E50; border: none; padding: 10px; border-radius: 10px; font-weight: bold; font-size: 0.85rem; cursor: pointer;">Volver</button>
+        <button onclick="ejecutarCancelacionContrato()" style="flex: 1; background: #27AE60; color: white; border: none; padding: 10px; border-radius: 10px; font-weight: bold; font-size: 0.85rem; cursor: pointer;">Confirmar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ASISTENTE -->
+  <div id="modal-asistente" class="modal-overlay">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 style="font-size: 1rem;">🤖 Asistente Agrícola</h3>
+        <button onclick="cerrarModalAsistente()" style="background:none; border:none; font-size: 1.1rem; font-weight:bold; cursor:pointer;">✕</button>
+      </div>
+      <div class="chat-container" id="chat-historial">
+        <div class="msg msg-bot">¡Hola Granjero! 🐥 ¿En qué te ayudo hoy? Recuerda enviar tu comprobante al WhatsApp 0964119803[span_2](start_span)[span_2](end_span).</div>
+      </div>
+      <form onsubmit="enviarMensajeInput(event)" style="display: flex; gap: 6px;">
+        <input type="text" id="asistente-input" placeholder="Escribe tu duda..." style="flex:1; padding: 8px; border-radius: 8px; border: 1px solid #D5D8DC; font-size: 0.8rem; outline:none;">
+        <button type="submit" style="background: #27AE60; color: white; border: none; padding: 8px 12px; border-radius: 8px; font-weight: bold; cursor: pointer;">Enviar</button>
+      </form>
+    </div>
+  </div>
+
+  <button onclick="abrirModalAsistente()" class="btn-flotante-asistente">🤖 Asistente</button>
+  <a href="https://chat.whatsapp.com/Htr1LmqNUMxGUp9zaYZeYN?s=cl&p=a&ilr=4" target="_blank" class="btn-flotante-asesores">💬 Asesores</a>
+
+  <nav id="navbar" style="display: none;">
+    <button class="nav-btn active" onclick="cambiarVista('inicio', this)"><span>🏠</span>Inicio</button>
+    <button class="nav-btn" onclick="cambiarVista('gallinas', this)"><span>🐔</span>Tienda</button>
+    <button class="nav-btn" onclick="cambiarVista('progreso', this)"><span>⏱️</span>Progreso</button>
+    <button class="nav-btn" onclick="cambiarVista('invitar', this)"><span>🎁</span>Invitar</button>
+    <button class="nav-btn" onclick="cambiarVista('historial', this)"><span>📜</span>Historial</button>
+    <button class="nav-btn" onclick="cambiarVista('perfil', this)"><span>👤</span>Perfil</button>
+  </nav>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, addDoc, onSnapshot, getDocs, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCg8HlNVN4GdUDpKKqhvMSC5wsFw6eSA4A",
+      authDomain: "ninerito-f99f7.firebaseapp.com",
+      projectId: "ninerito-f99f7",
+      storageBucket: "ninerito-f99f7.firebasestorage.app",
+      messagingSenderId: "463004005776",
+      appId: "1:463004005776:web:d51ac9268eeb68c430af15",
+      measurementId: "G-2BNCN5DBFW"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app, "default");
+
+    const CATALOGO = [
+      { id: 'p2', nombre: 'Gallina Blanca', nivel: 'V1', tipoNivel: 'Intermedio', precio: 20, prodDiaria: 1, huevosPorUso: 15, diasRecupera: 5, desc: 'Gallina ponedora de hermoso plumaje blanco.', emoji: '🐔', imagen: 'https://images.unsplash.com/photo-1563227812-0ea4c22e6cc8?auto=format&fit=crop&w=300&q=80', etiquetaEmoji: '⚪ Ponedora' },
+      { id: 'p3', nombre: 'Gallina Rhode Island', nivel: 'V2', tipoNivel: 'Avanzado', precio: 50, prodDiaria: 2.5, huevosPorUso: 25, diasRecupera: 7, desc: 'Excelente adaptabilidad y rendimiento en granja.', emoji: '🐓', imagen: 'https://images.unsplash.com/photo-1516467508483-a7212febe31a?auto=format&fit=crop&w=300&q=80', etiquetaEmoji: '🟠 Alta Producción' },
+      { id: 'p4', nombre: 'Gallina Plymouth Rock', nivel: 'V3', tipoNivel: 'Élite', precio: 100, prodDiaria: 5, huevosPorUso: 50, diasRecupera: 10, desc: 'Rendimiento superior y gran resistencia.', emoji: '🦃', imagen: 'https://images.unsplash.com/photo-1598425237683-9b8b09282b13?auto=format&fit=crop&w=300&q=80', etiquetaEmoji: '🟤 Élite Robusta' },
+      { id: 'p5', nombre: 'Gallina Sussex', nivel: 'V4', tipoNivel: 'Premium', precio: 250, prodDiaria: 12.5, huevosPorUso: 120, diasRecupera: 15, desc: 'Alta rentabilidad y producción estelar.', emoji: '🦅', imagen: 'https://images.unsplash.com/photo-1612872087720-bb876e2e67d1?auto=format&fit=crop&w=300&q=80', etiquetaEmoji: '⭐ Premium Estelar' },
+      { id: 'p6', nombre: 'Brahma Gigante', nivel: 'V5', tipoNivel: 'Legendario', precio: 1000, prodDiaria: 50, huevosPorUso: 500, diasRecupera: 30, desc: 'La cúspide máxima de la producción avícola.', emoji: '👑', imagen: 'https://images.unsplash.com/photo-1527153857715-3908f2bae5e8?auto=format&fit=crop&w=300&q=80', etiquetaEmoji: '🔥 Legendaria' }
+    ];
+
+    const GALLINA_REGALO_INICIAL = {
+      id: 'p1_regalo',
+      nombre: 'Pollito de Bienvenida',
+      nivel: 'V0',
+      tipoNivel: 'Básico',
+      precio: 0,
+      prodDiaria: 1,
+      huevosPorUso: 10,
+      diasRecupera: 3,
+      desc: 'Tierno pollito de regalo por iniciar sesión en la granja.',
+      emoji: '🐥',
+      imagen: 'https://images.unsplash.com/photo-1548550023-2bdb3c5beed7?auto=format&fit=crop&w=300&q=80'
+    };
+
+    let modoRegistro = false;
+    let usuarioActual = null;
+    let unsubscribeUserListener = null;
+    let contratoSeleccionadoIndex = null;
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const params = new URLSearchParams(window.location.search);
+      const refCode = params.get('ref');
+      if (refCode) {
+        modoRegistro = true;
+        actualizarModoAuthUI();
+        const inputInv = document.getElementById('auth-codigo-inv');
+        if (inputInv) inputInv.value = refCode;
+      }
+      verificarSesion();
+      inicializarPanelAdminRealtime();
+    });
+
+    function actualizarModoAuthUI() {
+      const groupNombre = document.getElementById('group-nombre');
+      const groupCodigoInv = document.getElementById('group-codigo-inv');
+      const titulo = document.getElementById('auth-titulo');
+      const btnSubmit = document.getElementById('btn-submit-auth');
+      const btnToggle = document.getElementById('btn-toggle-auth');
+
+      if (modoRegistro) {
+        groupNombre.style.display = 'block';
+        groupCodigoInv.style.display = 'block';
+        document.getElementById('auth-nombre').required = true;
+        titulo.innerText = 'Crear Cuenta';
+        btnSubmit.innerText = 'Registrar Granja';
+        btnToggle.innerText = '¿Ya tienes cuenta? Inicia sesión';
+      } else {
+        groupNombre.style.display = 'none';
+        groupCodigoInv.style.display = 'none';
+        document.getElementById('auth-nombre').required = false;
+        titulo.innerText = 'Iniciar Sesión';
+        btnSubmit.innerText = 'Ingresar a la Granja';
+        btnToggle.innerText = '¿No tienes cuenta? Regístrate aquí (Bonus: 2 💵 + Gallina de Regalo 🐤)';
+      }
+    }
+
+    function generarCodigoAleatorio() {
+      const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let codigo = '';
+      for (let i = 0; i < 5; i++) {
+        codigo += caracteres.charAt(Math.floor(Math.random() * caracteres.length));
+      }
+      return codigo;
+    }
+
+    function verificarSesion() {
+      const sesionGuardada = localStorage.getItem('gallinero_sesion_activa');
+      if (sesionGuardada) {
+        usuarioActual = JSON.parse(sesionGuardada);
+        if (!usuarioActual.codigoReferido || usuarioActual.codigoReferido === 'undefined') {
+          usuarioActual.codigoReferido = generarCodigoAleatorio();
+        }
+        
+        if (!usuarioActual.misGallinas || usuarioActual.misGallinas.length === 0) {
+          usuarioActual.misGallinas = [ { ...GALLINA_REGALO_INICIAL, fechaCompra: Date.now() } ];
+        }
+
+        verificarRachaDiaria();
+        guardarDatosUsuario();
+        calcularProduccionOffline();
+        mostrarAppPrincipal();
+      } else {
+        mostrarPantallaAuth();
+      }
+    }
+
+    function verificarRachaDiaria() {
+      const hoyStr = new Date().toDateString();
+      if (!usuarioActual.ultimaFechaRacha) {
+        usuarioActual.rachaDias = 1;
+        usuarioActual.ultimaFechaRacha = hoyStr;
+      } else {
+        const ultimaFecha = new Date(usuarioActual.ultimaFechaRacha);
+        const hoy = new Date(hoyStr);
+        const diferenciaDias = Math.floor((hoy - ultimaFecha) / (1000 * 60 * 60 * 24));
+
+        if (diferenciaDias === 1) {
+          usuarioActual.rachaDias = (usuarioActual.rachaDias || 1) + 1;
+          usuarioActual.ultimaFechaRacha = hoyStr;
+        } else if (diferenciaDias > 1) {
+          usuarioActual.rachaDias = 1;
+          usuarioActual.ultimaFechaRacha = hoyStr;
+        }
+      }
+    }
+
+    function escucharCambiosUsuario(email) {
+      if (unsubscribeUserListener) unsubscribeUserListener();
+      unsubscribeUserListener = onSnapshot(doc(db, 'usuarios', email), (docSnap) => {
+        if (docSnap.exists()) {
+          const dataRemota = docSnap.data();
+          dataRemota.acumuladoSinRecolectar = usuarioActual ? usuarioActual.acumuladoSinRecolectar : (dataRemota.acumuladoSinRecolectar || 0);
+          usuarioActual = dataRemota;
+          localStorage.setItem('gallinero_sesion_activa', JSON.stringify(usuarioActual));
+          actualizarUI();
+        }
+      }, (error) => {
+        console.log("Modo local activo:", error.message);
+      });
+    }
+
+    function calcularProduccionOffline() {
+      if (!usuarioActual) return;
+      const ahora = Date.now();
+      const ultimaConexion = usuarioActual.ultimaConexion || ahora;
+      const segundosTranscurridos = (ahora - ultimaConexion) / 1000;
+      if (segundosTranscurridos > 1) {
+        let prodDiariaTotal = (usuarioActual.misGallinas || []).reduce((acc, g) => acc + (g.prodDiaria || 1), 0);
+        let gananciasGanadas = segundosTranscurridos * (prodDiariaTotal / 86400);
+        usuarioActual.acumuladoSinRecolectar = (usuarioActual.acumuladoSinRecolectar || 0) + gananciasGanadas;
+      }
+      usuarioActual.ultimaConexion = ahora;
+      guardarDatosUsuario();
+    }
+
+    function toggleModoAuth() {
+      modoRegistro = !modoRegistro;
+      actualizarModoAuthUI();
+    }
+
+    async function procesarAuth(event) {
+      event.preventDefault();
+      const email = document.getElementById('auth-email').value.trim().toLowerCase();
+      const password = document.getElementById('auth-password').value;
+      const btnSubmit = document.getElementById('btn-submit-auth');
+      btnSubmit.disabled = true;
+
+      try {
+        let datosUsuarioCargados = null;
+        let existeEnRemoto = false;
+
+        try {
+          const userRef = doc(db, 'usuarios', email);
+          const docSnap = await getDoc(userRef);
+          if (docSnap.exists()) {
+            existeEnRemoto = true;
+            datosUsuarioCargados = docSnap.data();
+          }
+        } catch(errFirebase) {}
+
+        if (modoRegistro) {
+          const nombre = document.getElementById('auth-nombre').value.trim();
+          const codigoInvInput = document.getElementById('auth-codigo-inv').value.trim();
+          
+          if (existeEnRemoto) {
+            alert('El correo ya está registrado.');
+            btnSubmit.disabled = false;
+            return;
+          }
+
+          const nuevoUsuario = {
+            nombre: nombre,
+            email: email,
+            password: password,
+            codigoReferido: generarCodigoAleatorio(),
+            referidoPor: codigoInvInput || null,
+            fechaRegistro: new Date().toLocaleDateString(),
+            monedas: 2,
+            puntos: 100,
+            rachaDias: 1,
+            ultimaFechaRacha: new Date().toDateString(),
+            misGallinas: [ { ...GALLINA_REGALO_INICIAL, fechaCompra: Date.now() } ],
+            acumuladoSinRecolectar: 0,
+            ultimaConexion: Date.now(),
+            historial: [
+              { tipo: 'Registro', detalle: 'Bono de bienvenida, saldo y gallina de inicio de sesión gratis', fecha: new Date().toLocaleDateString() }
+            ]
+          };
+
+          try { await setDoc(doc(db, 'usuarios', email), nuevoUsuario); } catch(e) {}
+          iniciarSesionUsuario(nuevoUsuario);
+        } else {
+          if (existeEnRemoto) {
+            if (datosUsuarioCargados.password === password) {
+              if (!datosUsuarioCargados.misGallinas || datosUsuarioCargados.misGallinas.length === 0) {
+                datosUsuarioCargados.misGallinas = [ { ...GALLINA_REGALO_INICIAL, fechaCompra: Date.now() } ];
+              }
+              iniciarSesionUsuario(datosUsuarioCargados);
+            } else {
+              alert('Contraseña incorrecta.');
+            }
+          } else {
+            const usuarioLocalMock = {
+              nombre: email.split('@')[0],
+              email: email,
+              password: password,
+              codigoReferido: generarCodigoAleatorio(),
+              referidoPor: null,
+              fechaRegistro: new Date().toLocaleDateString(),
+              monedas: 10,
+              puntos: 100,
+              rachaDias: 1,
+              ultimaFechaRacha: new Date().toDateString(),
+              misGallinas: [ { ...GALLINA_REGALO_INICIAL, fechaCompra: Date.now() } ],
+              acumuladoSinRecolectar: 0,
+              ultimaConexion: Date.now(),
+              historial: [
+                { tipo: 'Inicio Sesión', detalle: 'Sesión iniciada con gallina de bienvenida asignada', fecha: new Date().toLocaleDateString() }
+              ]
+            };
+            iniciarSesionUsuario(usuarioLocalMock);
+          }
+        }
+      } catch (e) {
+        alert('Error: ' + e.message);
+      } finally {
+        btnSubmit.disabled = false;
+      }
+    }
+
+    function iniciarSesionUsuario(user) {
+      if(!user.historial) user.historial = [];
+      if(!user.codigoReferido) user.codigoReferido = generarCodigoAleatorio();
+      if(!user.misGallinas || user.misGallinas.length === 0) {
+        user.misGallinas = [ { ...GALLINA_REGALO_INICIAL, fechaCompra: Date.now() } ];
+      }
+      usuarioActual = user;
+      verificarRachaDiaria();
+      escucharCambiosUsuario(user.email);
+      calcularProduccionOffline();
+      guardarDatosUsuario();
+      mostrarAppPrincipal();
+    }
+
+    function cerrarSesion() {
+      if (usuarioActual) usuarioActual.ultimaConexion = Date.now();
+      guardarDatosUsuario();
+      if (unsubscribeUserListener) unsubscribeUserListener();
+      localStorage.removeItem('gallinero_sesion_activa');
+      usuarioActual = null;
+      mostrarPantallaAuth();
+    }
+
+    async function guardarDatosUsuario() {
+      if (!usuarioActual) return;
+      usuarioActual.ultimaConexion = Date.now();
+      localStorage.setItem('gallinero_sesion_activa', JSON.stringify(usuarioActual));
+      try { await setDoc(doc(db, 'usuarios', usuarioActual.email), usuarioActual, { merge: true }); } catch (e) {}
+    }
+
+    function mostrarPantallaAuth() {
+      document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
+      document.getElementById('vista-auth').classList.add('activa');
+      document.getElementById('navbar').style.display = 'none';
+    }
+
+    function mostrarAppPrincipal() {
+      document.getElementById('navbar').style.display = 'flex';
+      cambiarVista('inicio', document.querySelector('.nav-btn'));
+      actualizarUI();
+    }
+
+    function abrirModalRecarga() { document.getElementById('modal-recarga').classList.add('activo'); }
+    function cerrarModalRecarga() { document.getElementById('modal-recarga').classList.remove('activo'); }
+    function abrirModalRetiro() { document.getElementById('modal-retiro').classList.add('activo'); }
+    function cerrarModalRetiro() { document.getElementById('modal-retiro').classList.remove('activo'); }
+    function abrirModalAsistente() { document.getElementById('modal-asistente').classList.add('activo'); }
+    function cerrarModalAsistente() { document.getElementById('modal-asistente').classList.remove('activo'); }
+
+    function abrirModalCancelarContrato(index) {
+      contratoSeleccionadoIndex = index;
+      const g = usuarioActual.misGallinas[index];
+      const precioOrig = g.precio || 30.00;
+      const montoDevolver = precioOrig * 0.70;
+      
+      document.getElementById('cancelar-monto-orig').innerText = `$${precioOrig.toFixed(2)}`;
+      document.getElementById('cancelar-monto-devolver').innerText = `$${montoDevolver.toFixed(2)}`;
+      document.getElementById('modal-cancelar-contrato').classList.add('activo');
+    }
+
+    function cerrarModalCancelarContrato() {
+      document.getElementById('modal-cancelar-contrato').classList.remove('activo');
+      contratoSeleccionadoIndex = null;
+    }
+
+    function ejecutarCancelacionContrato() {
+      if (contratoSeleccionadoIndex === null || !usuarioActual || !usuarioActual.misGallinas[contratoSeleccionadoIndex]) return;
+      const g = usuarioActual.misGallinas[contratoSeleccionadoIndex];
+      const precioOrig = g.precio || 30.00;
+      const montoDevolver = precioOrig * 0.70;
+
+      usuarioActual.monedas += montoDevolver;
+      usuarioActual.misGallinas.splice(contratoSeleccionadoIndex, 1);
+      usuarioActual.historial.unshift({
+        tipo: 'Cancelación Contrato',
+        detalle: `Se canceló ${g.nombre}. Reembolso: +$${montoDevolver.toFixed(2)}`,
+        estado: 'Completado',
+        fecha: new Date().toLocaleDateString()
+      });
+
+      guardarDatosUsuario();
+      actualizarUI();
+      cerrarModalCancelarContrato();
+      alert(`Contrato cancelado con éxito. Se han devuelto $${montoDevolver.toFixed(2)} a tu saldo.`);
+    }
+
+    function copiarEnlaceRef() {
+      const enlace = `${window.location.origin}${window.location.pathname}?ref=${usuarioActual.codigoReferido}`;
+      navigator.clipboard.writeText(enlace).then(() => alert('¡Enlace copiado al portapapeles!'));
+    }
+
+    async function procesarRetiro(e) {
+      e.preventDefault();
+      const monto = parseFloat(document.getElementById('retiro-monto').value);
+      const destino = document.getElementById('retiro-destino').value.trim();
+
+      if (monto < 10) { alert('El retiro mínimo es de $10.00.'); return; }
+      if (usuarioActual.monedas < monto) { alert('Saldo insuficiente.'); return; }
+
+      try {
+        await addDoc(collection(db, 'notificaciones_admin'), {
+          tipo: 'Retiro',
+          email: usuarioActual.email,
+          nombre: usuarioActual.nombre,
+          monto: monto,
+          metodo: 'Banco Guayaquil',
+          destino: destino,
+          estado: 'Pendiente',
+          fecha: new Date().toLocaleString()
+        });
+      } catch(e) {}
+
+      usuarioActual.monedas -= monto;
+      usuarioActual.historial.unshift({
+        tipo: 'Solicitud Retiro',
+        detalle: `-$${monto.toFixed(2)} vía Banco Guayaquil`,
+        estado: 'Pendiente ⏳',
+        fecha: new Date().toLocaleDateString()
+      });
+
+      guardarDatosUsuario();
+      actualizarUI();
+      cerrarModalRetiro();
+      alert('✅ Solicitud de retiro registrada correctamente.');
+    }
+
+    async function notificarDeposito(e) {
+      e.preventDefault();
+      const monto = parseFloat(document.getElementById('recarga-monto').value);
+      const txid = document.getElementById('recarga-txid').value.trim();
+      
+      const txidLower = txid.toLowerCase();
+      if (!txid || txid.length < 5 || txidLower.includes('ej.') || txidLower.includes('ejemplo') || txidLower.includes('ref 123')) {
+        alert('❌ Por favor, ingresa un número de comprobante o referencia real y válido.');
+        return;
+      }
+
+      if (isNaN(monto) || monto <= 0) {
+        alert('❌ Ingresa un monto válido para la recarga.');
+        return;
+      }
+
+      try {
+        await addDoc(collection(db, 'notificaciones_admin'), {
+          tipo: 'Recarga',
+          email: usuarioActual.email,
+          nombre: usuarioActual.nombre,
+          monto: monto,
+          metodo: 'Banco Guayaquil',
+          txid: txid,
+          referidoPor: usuarioActual.referidoPor || null,
+          estado: 'Pendiente',
+          fecha: new Date().toLocaleString()
+        });
+      } catch(e) {}
+
+      usuarioActual.historial.unshift({ 
+        tipo: 'Recarga', 
+        detalle: `+${monto.toFixed(2)} (Banco Guayaquil) - Comprobante: ${txid}`, 
+        estado: 'Pendiente de aprobación ⏳', 
+        fecha: new Date().toLocaleDateString() 
+      });
+
+      guardarDatosUsuario();
+      actualizarUI();
+      cerrarModalRecarga();
+
+      document.getElementById('recarga-monto').value = '';
+      document.getElementById('recarga-txid').value = '';
+
+      alert('🎉 ¡Notificación de recarga registrada con éxito! Recuerda enviar la foto de tu comprobante al WhatsApp 0964119803[span_3](start_span)[span_3](end_span).');
+    }
+
+    function enviarMensajeInput(e) {
+      e.preventDefault();
+      const inp = document.getElementById('asistente-input');
+      if (!inp.value.trim()) return;
+      const chat = document.getElementById('chat-historial');
+      chat.innerHTML += `<div class="msg msg-user">${inp.value}</div>`;
+      chat.innerHTML += `<div class="msg msg-bot">Entendido granjero. Recuerda enviar la foto de tu comprobante de pago al WhatsApp 0964119803[span_4](start_span)[span_4](end_span) para validar tus recargas.</div>`;
+      chat.scrollTop = chat.scrollHeight;
+      inp.value = '';
+    }
+
+    function cambiarVista(nombreVista, boton) {
+      document.querySelectorAll('.vista').forEach(v => v.classList.remove('activa'));
+      document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('vista-' + nombreVista).classList.add('activa');
+      if (boton) boton.classList.add('active');
+    }
+
+    function renderMercado() {
+      const contenedor = document.getElementById('mercado-lista');
+      contenedor.innerHTML = '';
+      CATALOGO.forEach((item, index) => {
+        contenedor.innerHTML += `
+          <div class="producto-card">
+            ${index === 0 ? '<div class="badge-vendida">🔥 Más vendida</div>' : ''}
+            <div class="producto-grid-top">
+              <div class="producto-img-container">
+                <img src="${item.imagen}" alt="${item.nombre}">
+                <div class="emoji-badge-sombra" style="position: absolute; bottom: 2px;">${item.nivel}</div>
+              </div>
+              <div class="producto-info">
+                <div class="producto-titulo">${item.nombre}</div>
+                <div class="tags-row">
+                  <span class="tag-nivel">${item.nivel}</span>
+                  <span class="tag-nivel">${item.tipoNivel}</span>
+                </div>
+                <div class="producto-desc">${item.desc}</div>
+                <div class="producto-precio">$${item.precio.toFixed(2)}</div>
+                <div class="limite-pill"><span>📈</span> ${item.etiquetaEmoji}</div>
+              </div>
+            </div>
+
+            <div class="stats-card-grid">
+              <div class="stat-item">
+                <div class="stat-num">🥚 ${item.huevosPorUso}</div>
+                <div class="stat-label">Huevos/día</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-num">📈 $${item.prodDiaria}</div>
+                <div class="stat-label">Ingreso diario</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-num">⏱️ ${item.diasRecupera}d</div>
+                <div class="stat-label">Recupera en</div>
+              </div>
+            </div>
+
+            <button onclick="comprar('${item.id}')" class="btn-comprar-grande">
+              🛒 Comprar Ave
+            </button>
+          </div>
+        `;
+      });
+    }
+
+    function renderMisGallinas() {
+      const contenedor = document.getElementById('contenedor-mis-gallinas');
+      const contenedorProgreso = document.getElementById('contenedor-progreso-gallinas');
+      contenedor.innerHTML = '';
+      if (contenedorProgreso) contenedorProgreso.innerHTML = '';
+
+      if (!usuarioActual || !usuarioActual.misGallinas) return;
+      const DURACION_CICLO_MS = 30 * 24 * 60 * 60 * 1000;
+
+      usuarioActual.misGallinas.forEach((g, index) => {
+        const infoBase = CATALOGO.find(c => c.id === g.id) || GALLINA_REGALO_INICIAL;
+        const imagenMostrar = g.imagen || infoBase.imagen;
+        const numContrato = 'V' + (Math.floor(Math.random() * 900000) + 100000);
+        
+        const ahora = Date.now();
+        const fechaCompra = (g.fechaCompra && !isNaN(Number(g.fechaCompra))) ? Number(g.fechaCompra) : ahora;
+        const tiempoTranscurrido = ahora - fechaCompra;
+        const tiempoRestante = DURACION_CICLO_MS - tiempoTranscurrido;
+        let porcentajeProgreso = Math.min(100, Math.max(0, (tiempoTranscurrido / DURACION_CICLO_MS) * 100));
+
+        let textoTemporizador = "";
+        if (tiempoRestante <= 0) {
+          textoTemporizador = "✅ Ciclo completado";
+        } else {
+          const diasRestantes = Math.floor(tiempoRestante / (1000 * 60 * 60 * 24));
+          const horasRestantes = Math.floor((tiempoRestante % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+          const minutosRestantes = Math.floor((tiempoRestante % (1000 * 60 * 60)) / (1000 * 60));
+          textoTemporizador = `⏳ ${diasRestantes}d ${horasRestantes}h ${minutosRestantes}m`;
+        }
+
+        contenedor.innerHTML += `
+          <div class="producto-card" style="padding: 12px; margin-bottom: 10px;">
+            <div style="font-size: 0.68rem; color: #7F8C8D; margin-bottom: 6px; font-weight: bold; display: flex; justify-content: space-between;">
+              <span>Contrato: <span style="color: #2C3E50; font-family: monospace;">${numContrato}</span></span>
+              <span style="color: #27AE60;">${textoTemporizador}</span>
+            </div>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <div style="width: 50px; height: 50px; border-radius: 8px; background: #FFF9E6; display: flex; align-items: center; justify-content: center; border: 1px solid #EAECEE; overflow: hidden; flex-shrink: 0;">
+                  <img src="${imagenMostrar}" alt="${g.nombre}" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <div>
+                  <div style="font-weight: bold; font-size: 0.85rem;">${g.nombre}</div>
+                  <div style="font-size: 0.7rem; color: #7F8C8D;">Produce +${g.prodDiaria} 💵/día</div>
+                </div>
+              </div>
+              <span style="background: #EAFAF1; color: #27AE60; font-size: 0.65rem; font-weight: bold; padding: 4px 8px; border-radius: 6px; height: fit-content;">Activa</span>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button style="flex: 1; background: #F39C12; color: white; border: none; padding: 6px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; cursor: pointer;" onclick="alert('Contrato activo.')">Ver Vale</button>
+              <button style="flex: 1; background: #E74C3C; color: white; border: none; padding: 6px; border-radius: 6px; font-size: 0.7rem; font-weight: bold; cursor: pointer;" onclick="abrirModalCancelarContrato(${index})">Cancelar contrato</button>
+            </div>
+          </div>
+        `;
+
+        if (contenedorProgreso) {
+          contenedorProgreso.innerHTML += `
+            <div class="producto-card">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-weight: bold; font-size: 0.85rem;">${g.nombre}</span>
+                <span style="color: #27AE60; font-size: 0.75rem; font-weight: bold;">${textoTemporizador}</span>
+              </div>
+              <div style="width: 100%; height: 8px; background: #EAECEE; border-radius: 4px; overflow: hidden; margin-top: 6px;">
+                <div style="height: 100%; background: #27AE60; width: ${porcentajeProgreso}%;"></div>
+              </div>
+            </div>
+          `;
+        }
+      });
+    }
+
+    function renderHistorial() {
+      const contenedor = document.getElementById('historial-lista');
+      contenedor.innerHTML = '';
+      if(!usuarioActual || !usuarioActual.historial || usuarioActual.historial.length === 0) {
+        contenedor.innerHTML = '<p style="font-size: 0.75rem; color: #7F8C8D;">No hay movimientos.</p>';
+        return;
+      }
+      usuarioActual.historial.forEach(h => {
+        contenedor.innerHTML += `
+          <div class="producto-card" style="padding: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: bold; font-size: 0.8rem;">${h.tipo}</div>
+              <div style="font-size: 0.7rem; color: #7F8C8D;">${h.detalle} • ${h.fecha}</div>
+            </div>
+            ${h.estado ? `<span style="font-size: 0.65rem; font-weight: bold; color: #27AE60;">${h.estado}</span>` : ''}
+          </div>
+        `;
+      });
+    }
+
+    function comprar(idItem) {
+      const item = CATALOGO.find(i => i.id === idItem);
+      if (!item) return;
+
+      if (usuarioActual.monedas >= item.precio) {
+        usuarioActual.monedas -= item.precio;
+        if (!usuarioActual.misGallinas) usuarioActual.misGallinas = [];
+        usuarioActual.misGallinas.push({ ...item, fechaCompra: Date.now() });
+
+        usuarioActual.historial.unshift({ tipo: 'Compra', detalle: `Adquisición de ${item.nombre}`, fecha: new Date().toLocaleDateString() });
+        guardarDatosUsuario();
+        actualizarUI();
+        alert(`¡Has adquirido ${item.nombre}!`);
+      } else {
+        alert('Saldo insuficiente.');
+      }
+    }
+
+    function recolectar() {
+      if ((usuarioActual.acumuladoSinRecolectar || 0) <= 0) { alert('Aún no hay producción acumulada.'); return; }
+      const monto = usuarioActual.acumuladoSinRecolectar;
+      usuarioActual.monedas += monto;
+      usuarioActual.historial.unshift({ tipo: 'Recolección', detalle: `Producción (+${monto.toFixed(2)} 💵)`, fecha: new Date().toLocaleDateString() });
+      usuarioActual.acumuladoSinRecolectar = 0;
+      guardarDatosUsuario();
+      actualizarUI();
+      alert(`¡Has recolectado ${monto.toFixed(2)} 💵!`);
+    }
+
+    async function cargarListaUsuariosAdmin() {
+      const contenedorLista = document.getElementById('lista-usuarios-admin');
+      if (!contenedorLista) return;
+      try {
+        const querySnapshot = await getDocs(collection(db, 'usuarios'));
+        let htmlUsuarios = '';
+        querySnapshot.forEach((docSnap) => {
+          const u = docSnap.data();
+          htmlUsuarios += `<div style="border-bottom: 1px solid #EAECEE; padding: 3px 0; display: flex; justify-content: space-between;">
+            <span><b>${u.nombre || 'Sin nombre'}</b></span>
+            <span style="color: #27AE60; font-weight: bold;">💰 ${(u.monedas || 0).toFixed(2)} | 🌟 ${u.puntos || 0}pts</span>
+          </div>`;
+        });
+        contenedorLista.innerHTML = htmlUsuarios || 'No hay usuarios registrados.';
+      } catch(e) {
+        contenedorLista.innerHTML = 'Error al cargar usuarios o modo local activo.';
+      }
+    }
+
+    function inicializarPanelAdminRealtime() {
+      const contenedorAdminNotif = document.getElementById('lista-notificaciones-admin');
+      const contadorAdmin = document.getElementById('total-notif');
+      if (!contenedorAdminNotif) return;
+
+      onSnapshot(collection(db, 'notificaciones_admin'), (snapshot) => {
+        let solicitudes = [];
+        snapshot.forEach((docSnap) => {
+          solicitudes.push({ id: docSnap.id, ...docSnap.data() });
+        });
+
+        if(contadorAdmin) {
+          contadorAdmin.textContent = `${solicitudes.length} Pendiente${solicitudes.length !== 1 ? 's' : ''}`;
+        }
+
+        if (solicitudes.length === 0) {
+          contenedorAdminNotif.innerHTML = `<p style="font-size: 0.75rem; color: #95A5A6; text-align: center; padding: 10px;">No hay solicitudes pendientes. 📭</p>`;
+          return;
+        }
+
+        contenedorAdminNotif.innerHTML = '';
+        solicitudes.forEach((sol) => {
+          const badgeClass = sol.tipo && sol.tipo.toLowerCase() === 'recarga' ? 'badge-recarga' : 'badge-retiro';
+          const card = document.createElement('div');
+          card.className = 'admin-card';
+          card.innerHTML = `
+            <span class="admin-badge ${badgeClass}">${sol.tipo || 'SOLICITUD'}</span>
+            <div class="admin-card-body">Usuario: <span>${sol.nombre || 'Anónimo'}</span> (${sol.email || ''})</div>
+            <div class="admin-card-body">Monto: <span>$${Number(sol.monto || 0).toFixed(2)}</span></div>
+            <div class="admin-card-body">Método: ${sol.metodo || 'Banco Guayaquil'}</div>
+            <div class="admin-card-body">Detalle / TXID: <span>${sol.txid || sol.destino || 'N/A'}</span></div>
+            <div class="admin-card-body" style="font-size: 0.7rem; color: #95a5a6;">Fecha: ${sol.fecha || ''}</div>
+            <div class="admin-acciones">
+              <button class="btn-aprobar" onclick="procesarAccionAdmin('${sol.id}', 'aprobar')">Aprobar</button>
+              <button class="btn-rechazar" onclick="procesarAccionAdmin('${sol.id}', 'rechazar')">Rechazar / Borrar</button>
+            </div>
+          `;
+          contenedorAdminNotif.appendChild(card);
+        });
+      });
+    }
+
+    window.procesarAccionAdmin = async function(id, tipoAccion) {
+      try {
+        await deleteDoc(doc(db, 'notificaciones_admin', id));
+        alert(tipoAccion === 'aprobar' ? '✅ Solicitud procesada y removida de pendientes.' : '❌ Solicitud rechazada.');
+      } catch (e) {
+        alert('Error al procesar: ' + e.message);
+      }
+    };
+
+    async function ejecutarBonoAdmin() {
+      const targetNombre = document.getElementById('admin-target-nombre').value.trim().toLowerCase();
+      const adminPass = document.getElementById('admin-password-input').value;
+      const montoExtra = parseFloat(document.getElementById('admin-target-monto').value);
+
+      if (adminPass !== 'pollitas 123') {
+        alert('❌ Contraseña de administrador incorrecta.');
+        return;
+      }
+
+      if (!targetNombre || isNaN(montoExtra) || montoExtra <= 0) {
+        alert('Por favor ingresa un nombre de usuario y un monto válidos.');
+        return;
+      }
+
+      try {
+        const querySnapshot = await getDocs(collection(db, 'usuarios'));
+        let userEncontradoDocRef = null;
+        let userDataEncontrado = null;
+
+        querySnapshot.forEach((docSnap) => {
+          const u = docSnap.data();
+          if (u.nombre && u.nombre.trim().toLowerCase() === targetNombre) {
+            userEncontradoDocRef = doc(db, 'usuarios', docSnap.id);
+            userDataEncontrado = u;
+          }
+        });
+
+        if (userEncontradoDocRef && userDataEncontrado) {
+          userDataEncontrado.monedas = (userDataEncontrado.monedas || 0) + montoExtra;
+          if (!userDataEncontrado.historial) userDataEncontrado.historial = [];
+          userDataEncontrado.historial.unshift({
+            tipo: 'Bono Administrador',
+            detalle: `Recibiste un bono de +$${montoExtra.toFixed(2)}`,
+            fecha: new Date().toLocaleDateString()
+          });
+          await setDoc(userEncontradoDocRef, userDataEncontrado, { merge: true });
+          alert(`✅ Bono de $${montoExtra.toFixed(2)} aplicado exitosamente al usuario ${userDataEncontrado.nombre}`);
+          document.getElementById('admin-target-nombre').value = '';
+          document.getElementById('admin-password-input').value = '';
+          document.getElementById('admin-target-monto').value = '';
+          cargarListaUsuariosAdmin();
+        } else {
+          alert('❌ No se encontró ningún usuario registrado con ese nombre exacto.');
+        }
+      } catch (e) {
+        alert('Error al aplicar el bono: ' + e.message);
+      }
+    }
+
+    setInterval(() => {
+      if (!usuarioActual || !usuarioActual.misGallinas) return;
+      let prodSeg = usuarioActual.misGallinas.reduce((acc, g) => acc + (g.prodDiaria || 1), 0) / 86400;
+      usuarioActual.acumuladoSinRecolectar = (usuarioActual.acumuladoSinRecolectar || 0) + (prodSeg * 1);
+      const el = document.getElementById('recoleccion-pendiente');
+      if (el) el.innerText = (usuarioActual.acumuladoSinRecolectar || 0).toFixed(2);
+      renderMisGallinas();
+    }, 1000);
+
+    function actualizarUI() {
+      if (!usuarioActual) return;
+      document.getElementById('saludo-granjero').innerText = `¡Hola, ${usuarioActual.nombre}!`;
+      document.getElementById('racha-dias-txt').innerText = `🔥 Racha: ${usuarioActual.rachaDias || 1} día(s)`;
+      document.getElementById('monedas-txt').innerText = (usuarioActual.monedas || 0).toFixed(2) + ' 💵';
+      document.getElementById('cant-gallinas-txt').innerText = (usuarioActual.misGallinas ? usuarioActual.misGallinas.length : 0) + ' 🐤';
+      document.getElementById('puntos-txt').innerText = (usuarioActual.puntos || 0) + ' pts';
+      document.getElementById('perfil-nombre').innerText = usuarioActual.nombre;
+      document.getElementById('perfil-correo').innerText = usuarioActual.email;
+      document.getElementById('perfil-codigo').innerText = usuarioActual.codigoReferido;
+      document.getElementById('perfil-fecha').innerText = usuarioActual.fechaRegistro;
+      document.getElementById('perfil-puntos').innerText = (usuarioActual.puntos || 0) + ' pts';
+      document.getElementById('perfil-racha').innerText = (usuarioActual.rachaDias || 1) + ' día(s)';
+      document.getElementById('perfil-gallinas').innerText = usuarioActual.misGallinas ? usuarioActual.misGallinas.length : 0;
+      
+      document.getElementById('lbl-codigo-ref').innerText = usuarioActual.codigoReferido;
+      document.getElementById('link-referido-txt').innerText = `${window.location.origin}${window.location.pathname}?ref=${usuarioActual.codigoReferido}`;
+
+      cargarListaUsuariosAdmin();
+      renderMisGallinas();
+      renderHistorial();
+    }
+
+    window.abrirModalAsistente = abrirModalAsistente;
+    window.abrirModalRecarga = abrirModalRecarga;
+    window.abrirModalRetiro = abrirModalRetiro;
+    window.abrirModalCancelarContrato = abrirModalCancelarContrato;
+    window.cerrarModalCancelarContrato = cerrarModalCancelarContrato;
+    window.ejecutarCancelacionContrato = ejecutarCancelacionContrato;
+    window.ejecutarBonoAdmin = ejecutarBonoAdmin;
+    window.cambiarVista = cambiarVista;
+    window.cerrarModalAsistente = cerrarModalAsistente;
+    window.cerrarModalRecarga = cerrarModalRecarga;
+    window.cerrarModalRetiro = cerrarModalRetiro;
+    window.cerrarSesion = cerrarSesion;
+    window.comprar = comprar;
+    window.copiarEnlaceRef = copiarEnlaceRef;
+    window.enviarMensajeInput = enviarMensajeInput;
+    window.notificarDeposito = notificarDeposito;
+    window.procesarAuth = procesarAuth;
+    window.procesarRetiro = procesarRetiro;
+    window.recolectar = recolectar;
+    window.toggleModoAuth = toggleModoAuth;
+
+    renderMercado();
+  </script>
+</body>
+</html>
